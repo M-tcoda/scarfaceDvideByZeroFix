@@ -1,0 +1,30 @@
+name: build-scarfacefix
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-win32:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Visual Studio Build Tools
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Build with cl (MSVC) - 32-bit
+        shell: cmd
+        run: |
+          REM Ensure 32-bit toolset is used by invoking vcvarsall for x86
+          call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x86
+          cl /EHsc /MD /nologo /O2 /W3 /LD ScarfaceFix.cpp /link /DLL /OUT:ScarfaceFix.dll
+          dir
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScarfaceFix-dll
+          path: ScarfaceFix.dll
