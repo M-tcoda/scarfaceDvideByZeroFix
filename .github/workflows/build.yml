@@ -2,8 +2,6 @@ name: build-scarfacefix
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
 
 jobs:
   build-win32:
@@ -11,19 +9,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up MSYS2
+      - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW32
           update: true
-          install: >-
+          install: |
             mingw-w64-i686-gcc
             make
 
-      - name: Build DLL
-        shell: msys2 {0}
+      - name: Build ScarfaceFix.dll
         run: |
-          gcc -m32 -O2 -s -shared -o ScarfaceFix.dll ScarfaceFix.cpp
+          echo "Starting GCC build"
+          C:\msys64\mingw32\bin\gcc.exe -m32 -O2 -s -shared -o ScarfaceFix.dll ScarfaceFix.cpp
+          echo "Build finished"
+        shell: cmd
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
