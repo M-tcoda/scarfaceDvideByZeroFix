@@ -9,19 +9,21 @@ jobs:
   build-win32:
     runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Visual Studio Build Tools
-        uses: microsoft/setup-msbuild@v1
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: true
+          install: >-
+            mingw-w64-i686-gcc
+            make
 
-      - name: Build with cl (MSVC) - 32-bit
-        shell: cmd
+      - name: Build DLL
+        shell: msys2 {0}
         run: |
-          REM Ensure 32-bit toolset is used by invoking vcvarsall for x86
-          call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x86
-          cl /EHsc /MD /nologo /O2 /W3 /LD ScarfaceFix.cpp /link /DLL /OUT:ScarfaceFix.dll
-          dir
+          gcc -m32 -O2 -s -shared -o ScarfaceFix.dll ScarfaceFix.cpp
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
